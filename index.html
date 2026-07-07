@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PhysWiki | Современная физика</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Montserrat', 'sans-serif'] },
+                    colors: { 
+                        black: '#111111', surface: '#fafafa', 'dark-bg': '#09090b', 'dark-surface': '#18181b',
+                        'bordo-bg': '#5C1F2D', 'bordo-surface': '#6b2434', 'powder': '#E8C7C0',
+                        'navy-bg': '#141A29', 'navy-surface': '#1e263c', 'ice': '#D6E4FF'
+                    }
+                }
+            },
+            plugins: [ function({ addVariant }) { addVariant('bordo', '.bordo &'); addVariant('navy', '.navy &'); } ]
+        }
+    </script>
+
+    <style>
+        body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        * { transition-property: background-color, border-color, color, fill, stroke; transition-duration: 300ms; }
+        .nav-link { position: relative; transition: color 0.2s ease; }
+        .nav-link::after { content: ''; position: absolute; width: 0; height: 2px; bottom: -4px; left: 0; background-color: currentColor; transition: width 0.3s ease; }
+        .nav-link:hover::after, .nav-link.active::after { width: 100%; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        .article-content { max-width: 100%; overflow-wrap: break-word; }
+        .article-content p { margin-bottom: 1.5rem; line-height: 1.6; font-weight: 500; font-size: 1rem; }
+        @media (min-width: 768px) { .article-content p { line-height: 1.8; font-size: 1.05rem; } }
+        .article-content h2 { font-size: 1.75rem; font-weight: 900; margin-top: 3rem; margin-bottom: 1.5rem; letter-spacing: -0.025em; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem;}
+        @media (min-width: 768px) { .article-content h2 { font-size: 2.25rem; margin-top: 4rem; margin-bottom: 2rem; padding-bottom: 1rem; } }
+        .article-content h3 { font-size: 1.25rem; font-weight: 800; margin-top: 2rem; margin-bottom: 1rem; letter-spacing: -0.025em; }
+        @media (min-width: 768px) { .article-content h3 { font-size: 1.5rem; margin-top: 2.5rem; margin-bottom: 1.25rem; } }
+        .dark .article-content h2 { border-color: #27272a; } .bordo .article-content h2 { border-color: rgba(232, 199, 192, 0.2); } .navy .article-content h2 { border-color: rgba(214, 228, 255, 0.2); }
+        .article-content ul, .article-content ol { margin-bottom: 1.5rem; margin-left: 1.5rem; list-style-type: disc; } .article-content ol { list-style-type: decimal; }
+        .article-content li { margin-bottom: 0.5rem; font-weight: 500; }
+        mjx-container svg { display: inline !important; } mjx-container:not([display="true"]) { display: inline-block !important; }
+        .formula-display { display: flex; justify-content: center; align-items: center; margin: 2rem 0; font-size: 1.35rem; overflow-x: auto; padding: 1rem 0; -webkit-overflow-scrolling: touch; }
+        @media (min-width: 768px) { .formula-display { margin: 3rem 0 2rem 0; font-size: 2.25rem; } }
+        .perspective-1000 { perspective: 1000px; } .transform-style-3d { transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+        .backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; } .rotate-y-180 { transform: rotateY(180deg); } .card-flipped .transform-style-3d { transform: rotateY(180deg); }
+        .dark mjx-container svg, .bg-black mjx-container svg { color: white !important; fill: white !important; }
+        .bordo mjx-container svg { color: #E8C7C0 !important; fill: #E8C7C0 !important; } .bordo .theme-card-back mjx-container svg { color: #5C1F2D !important; fill: #5C1F2D !important; }
+        .navy mjx-container svg { color: #D6E4FF !important; fill: #D6E4FF !important; } .navy .theme-card-back mjx-container svg { color: #141A29 !important; fill: #141A29 !important; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; } .custom-scrollbar::-webkit-scrollbar-track { background: transparent; } .custom-scrollbar::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 4px; }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #27272a; } .bordo .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(232, 199, 192, 0.3); } .navy .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(214, 228, 255, 0.3); }
+        .radial-progress { width: 120px; height: 120px; border-radius: 50%; background: conic-gradient(#10b981 var(--progress), #e5e7eb 0deg); display: flex; align-items: center; justify-content: center; position: relative; }
+        .dark .radial-progress { background: conic-gradient(#10b981 var(--progress), #27272a 0deg); } .bordo .radial-progress { background: conic-gradient(#E8C7C0 var(--progress), #6b2434 0deg); } .navy .radial-progress { background: conic-gradient(#D6E4FF var(--progress), #1e263c 0deg); }
+        .radial-progress::before { content: attr(data-progress); position: absolute; inset: 10px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.5rem; }
+        .dark .radial-progress::before { background: #18181b; color: white; } .bordo .radial-progress::before { background: #5C1F2D; color: #E8C7C0; } .navy .radial-progress::before { background: #141A29; color: #D6E4FF; }
+        .theme-btn.active { transform: scale(1.15); box-shadow: 0 0 0 2px currentColor; }
+        .task-input::-webkit-outer-spin-button, .task-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    </style>
+</head>
+<body class="bg-white dark:bg-dark-bg bordo:bg-bordo-bg navy:bg-navy-bg text-black dark:text-gray-100 bordo:text-powder navy:text-ice min-h-screen flex flex-col selection:bg-black selection:text-white dark:selection:bg-white dark:selection:text-black bordo:selection:bg-powder bordo:selection:text-bordo-bg navy:selection:bg-ice navy:selection:text-navy-bg transition-colors duration-500">
+
+    <header class="border-b border-gray-100 dark:border-zinc-800 bordo:border-powder/10 navy:border-ice/10 sticky top-0 bg-white/90 dark:bg-dark-bg/90 bordo:bg-bordo-bg/90 navy:bg-navy-bg/90 backdrop-blur-md z-50">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
+            <a href="#" class="text-xl sm:text-2xl font-black tracking-tight cursor-pointer" onclick="navigate('home'); return false;">PHYS<span class="text-gray-400 dark:text-zinc-500 bordo:text-powder/50 navy:text-ice/50 transition-colors">WIKI</span>.</a>
+            <nav class="hidden md:flex space-x-10 font-semibold text-sm uppercase tracking-widest" id="desktop-nav">
+                <a href="#" class="nav-link text-gray-500 dark:text-zinc-400 bordo:text-powder/60 navy:text-ice/60 hover:text-black dark:hover:text-white bordo:hover:text-powder navy:hover:text-ice" data-page="theory" onclick="navigate('theory'); return false;">Теория</a>
+                <a href="#" class="nav-link text-gray-500 dark:text-zinc-400 bordo:text-powder/60 navy:text-ice/60 hover:text-black dark:hover:text-white bordo:hover:text-powder navy:hover:text-ice" data-page="cards" onclick="navigate('cards'); return false;">Карточки</a>
+                <a href="#" class="nav-link text-gray-500 dark:text-zinc-400 bordo:text-powder/60 navy:text-ice/60 hover:text-black dark:hover:text-white bordo:hover:text-powder navy:hover:text-ice" data-page="tasks" onclick="navigate('tasks'); return false;">Задачи</a>
+                <a href="#" class="nav-link text-gray-500 dark:text-zinc-400 bordo:text-powder/60 navy:text-ice/60 hover:text-black dark:hover:text-white bordo:hover:text-powder navy:hover:text-ice" data-page="rating" onclick="navigate('rating'); return false;">Рейтинг</a>
+            </nav>
+            <div class="flex items-center gap-3 sm:gap-6">
+                <button onclick="navigate('profile')" class="text-gray-500 hover:text-black dark:text-zinc-400 dark:hover:text-white bordo:text-powder/60 bordo:hover:text-powder navy:text-ice/60 navy:hover:text-ice transition-colors" title="Профиль"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 sm:w-6 sm:h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" /></svg></button>
+                <div class="flex items-center gap-2 sm:gap-3 p-1 sm:p-1.5 border border-gray-200 dark:border-zinc-800 bordo:border-powder/20 navy:border-ice/20 rounded-full transition-colors">
+                    <button onclick="setTheme('light')" id="btn-theme-light" class="theme-btn w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-white border border-gray-300 shadow-sm transition-transform text-black"></button>
+                    <button onclick="setTheme('dark')" id="btn-theme-dark" class="theme-btn w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-zinc-900 border border-zinc-700 shadow-sm transition-transform text-zinc-400"></button>
+                    <button onclick="setTheme('bordo')" id="btn-theme-bordo" class="theme-btn w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[#5C1F2D] border border-[#E8C7C0]/30 shadow-sm transition-transform text-[#E8C7C0]"></button>
+                    <button onclick="setTheme('navy')" id="btn-theme-navy" class="theme-btn w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[#141A29] border border-[#D6E4FF]/30 shadow-sm transition-transform text-[#D6E4FF]"></button>
+                </div>
+                <button class="md:hidden text-black dark:text-white bordo:text-powder navy:text-ice" onclick="toggleMobileMenu()"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9h16.5m-16.5 6.75h16.5" /></svg></button>
+            </div>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden bg-white dark:bg-dark-bg bordo:bg-bordo-bg navy:bg-navy-bg border-b border-gray-100 dark:border-zinc-800 bordo:border-powder/10 navy:border-ice/10 px-6 py-4 flex flex-col space-y-4 font-semibold uppercase tracking-widest text-sm">
+            <a href="#" class="nav-link-mobile block py-2" data-page="home" onclick="navigate('home'); return false;">Главная</a>
+            <a href="#" class="nav-link-mobile block py-2" data-page="theory" onclick="navigate('theory'); return false;">Теория</a>
+            <a href="#" class="nav-link-mobile block py-2" data-page="cards" onclick="navigate('cards'); return false;">Карточки</a>
+            <a href="#" class="nav-link-mobile block py-2" data-page="tasks" onclick="navigate('tasks'); return false;">Задачи</a>
+            <a href="#" class="nav-link-mobile block py-2" data-page="rating" onclick="navigate('rating'); return false;">Рейтинг</a>
+            <a href="#" class="nav-link-mobile block py-2" data-page="profile" onclick="navigate('profile'); return false;">Профиль</a>
+        </div>
+    </header>
+
+    <main class="flex-grow w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 md:py-16" id="app-content"></main>
+
+    <footer class="border-t border-gray-100 dark:border-zinc-800 bordo:border-powder/10 navy:border-ice/10 mt-auto py-10 md:py-12">
+        <div class="max-w-5xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 md:gap-6 text-center md:text-left">
+            <div class="text-xl font-black tracking-tight">PHYS<span class="text-gray-400 dark:text-zinc-600 bordo:text-powder/50 navy:text-ice/50">WIKI</span>.</div>
+            <p class="text-sm text-gray-400 dark:text-zinc-500 bordo:text-powder/60 navy:text-ice/60 font-medium">© 2026 PhysWiki. Обучение со смыслом.</p>
+        </div>
+    </footer>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyD3uRNhEz16qO_IEevjHtran-FqtW3N_jU",
+            authDomain: "physwiki-a2919.firebaseapp.com",
+            projectId: "physwiki-a2919",
+            storageBucket: "physwiki-a2919.firebasestorage.app",
+            messagingSenderId: "450379124688",
+            appId: "1:450379124688:web:9bab66088d2586e4c5b3d5",
+            measurementId: "G-3W9XGZCXK2"
+        };
+
+        let db = null;
+        if (firebaseConfig.apiKey !== "ТВОЙ_API_KEY") {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+        }
+
+        let userId = localStorage.getItem('physwiki_uid');
+        if (!userId) { userId = 'user_' + Math.random().toString(36).substr(2, 9); localStorage.setItem('physwiki_uid', userId); }
+        let userXP = parseInt(localStorage.getItem('physwiki_xp')) || 0;
+        let userName = localStorage.getItem('physwiki_username') || 'Гость';
+        
+        function getRank(xp) {
+    if (xp < 150) return { name: "Наблюдатель", color: "text-gray-500" };
+    if (xp < 400) return { name: "Студент-теоретик", color: "text-blue-400" };
+    if (xp < 1000) return { name: "Адепт термодинамики", color: "text-green-400" };
+    if (xp < 2500) return { name: "Мастер электродинамики", color: "text-yellow-500" };
+    if (xp < 5000) return { name: "Астрофизик", color: "text-orange-400" };
+    if (xp < 10000) return { name: "Космолог", color: "text-purple-400" };
+    return { name: "Сингулярность", color: "text-pink-500" };
+}
+         
+        async function syncUserDataToCloud() {
+            if (!db) return;
+            try { await db.collection('users').doc(userId).set({ name: userName, xp: userXP, lastActive: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true }); } 
+            catch (e) { console.error("Ошибка синхронизации:", e); }
+        }
+        syncUserDataToCloud();
+
+        function saveUserName(name) {
+            userName = name.trim() || 'Гость'; localStorage.setItem('physwiki_username', userName); syncUserDataToCloud();
+        }
+
+        function setTheme(theme) {
+            const html = document.documentElement; html.classList.remove('dark', 'bordo', 'navy');
+            if (theme === 'dark') html.classList.add('dark'); if (theme === 'bordo') html.classList.add('bordo'); if (theme === 'navy') html.classList.add('navy');
+            localStorage.setItem('theme', theme); updateThemeButtons(theme);
+        }
+
+        function updateThemeButtons(theme) {
+            ['light', 'dark', 'bordo', 'navy'].forEach(t => document.getElementById(`btn-theme-${t}`).classList.remove('active'));
+            document.getElementById(`btn-theme-${theme}`).classList.add('active');
+        }
+
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) { setTheme(savedTheme); } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) { setTheme('dark'); } else { setTheme('light'); }
+
+        const dbStructure = {
+            modules: [
+                { id: 'mechanics', title: '1. Механика', topics: [ { id: 'kinematics', title: 'Основы кинематики' }, { id: 'dynamics', title: 'Законы динамики' }, { id: 'statics', title: 'Статика и равновесие' }, { id: 'conservation', title: 'Законы сохранения' } ] },
+                { id: 'thermodynamics', title: '2. Молекулярная физика', topics: [ { id: 'mkt', title: 'Основы МКТ и Идеальный газ' }, { id: 'thermo_laws', title: 'Термодинамика и Изопроцессы' }, { id: 'phase_engines', title: 'Фазовые переходы и Двигатели' } ] },
+                { id: 'electrodynamics', title: '3. Электродинамика', topics: [ { id: 'electrostatics', title: 'Электростатика' }, { id: 'dc_current', title: 'Постоянный ток' }, { id: 'magnetism', title: 'Магнитное поле' }, { id: 'induction', title: 'ЭМИ и Индукция' } ] },
+                { id: 'oscillations', title: '4. Колебания и Волны', topics: [ { id: 'mech_oscillations', title: 'Механические колебания' }, { id: 'waves_sound', title: 'Механические волны и Звук' }, { id: 'optics', title: 'Оптика. Свет и линзы' } ] }
+            ]
+        };
+
+        const contentDB = {
+            'kinematics': { title: 'Кинематика. Пространство и Время.', content: `<p>Вся механика начинается с геометрии. Прежде чем понять, <em>почему</em> объекты движутся, нам нужно научиться описывать это движение на языке математики. Кинематика — это оцифровка пространства и времени.</p><h2>Радиус-вектор и производные</h2><p>Положение любой материальной точки в пространстве задается радиус-вектором $\\vec{r}(t)$. Движение — это непрерывное изменение этого вектора во времени. Если мы возьмем бесконечно малое перемещение $d\\vec{r}$ за бесконечно малый промежуток времени $dt$, мы получим мгновенную скорость. Это не просто школьная формула $v = s/t$, это математический срез реальности:</p><div class="formula-display">$$\\vec{v} = \\frac{d\\vec{r}}{dt}$$</div><p>Вектор мгновенной скорости всегда направлен строго по касательной. Но скорость тоже может меняться. Вторая производная радиус-вектора дает нам ускорение — характеристику изменения движения:</p><div class="formula-display">$$\\vec{a} = \\frac{d\\vec{v}}{dt} = \\frac{d^2\\vec{r}}{dt^2}$$</div><div class="p-4 sm:p-6 bg-surface dark:bg-dark-surface bordo:bg-bordo-surface navy:bg-navy-surface border-l-4 border-black dark:border-white bordo:border-powder navy:border-ice rounded-r-xl my-6 md:my-8 shadow-sm"><p class="text-gray-800 dark:text-gray-200 bordo:text-powder navy:text-ice font-bold mb-2">Интегральный подход</p><p class="text-gray-600 dark:text-zinc-400 bordo:text-powder/80 navy:text-ice/80 text-sm md:text-base">Если мы знаем закон изменения ускорения $\\vec{a}(t)$, мы можем «отмотать» процесс назад через операцию интегрирования, чтобы найти скорость и путь. Для равноускоренного движения ($\\vec{a} = \\text{const}$) двукратное интегрирование дает знаменитое кинематическое уравнение: $$\\vec{r}(t) = \\vec{r}_0 + \\vec{v}_0 t + \\frac{\\vec{a}t^2}{2}$$</p></div>` },
+            'dynamics': { title: 'Динамика. Причины движения.', content: `<p>Динамика отвечает на вопрос "Почему?". Ньютон связал геометрию траекторий с физическим взаимодействием материи.</p><h2>Дифференциальное уравнение Ньютона</h2><p>Второй закон Ньютона — это базовое дифференциальное уравнение движения:</p><div class="formula-display">$$m \\frac{d^2\\vec{r}}{dt^2} = \\sum \\vec{F}_i$$</div><p>Сила не порождает скорость, она способна изменить лишь вектор и модуль текущей скорости.</p><h2>Закон Всемирного Тяготения</h2><p>Любые два тела во Вселенной притягиваются. Эта структура $1/r^2$ пронизывает всю физику и геометрию нашего трехмерного пространства.</p><div class="formula-display">$$F = G \\frac{m_1 m_2}{r^2}$$</div>` },
+            'statics': { title: 'Статика. Философия равновесия.', content: `<p>Статика изучает условия покоя макроскопических систем.</p><h2>Момент силы и плечо</h2><p>Вращающий эффект силы зависит от точки её приложения и характеризуется моментом силы:</p><div class="formula-display">$$M = \\pm F \\cdot l$$</div><h2>Условия равновесия абсолютно твердого тела</h2><div class="formula-display">$$\\sum \\vec{F}_i = 0 \\quad \\text{и} \\quad \\sum M_i = 0$$</div>` },
+            'conservation': { title: 'Законы сохранения. Симметрия Вселенной.', content: `<p>Теорема Нётер доказала: законы сохранения фундаментально проистекают из геометрических симметрий пространства и времени.</p><h2>Закон сохранения импульса (ЗСИ)</h2><div class="formula-display">$$\\sum \\vec{p}_i = \\text{const}$$</div><h2>Закон сохранения энергии (ЗСЭ)</h2><p>В консервативных полях полная механическая энергия изолированной системы инвариантна во времени:</p><div class="formula-display">$$E_k + E_p = \\text{const}$$</div>` },
+            'mkt': { title: 'Основы МКТ и Идеальный газ.', content: `<p>Макропараметры среды — это статистическая иллюзия, созданная хаотичным движением квинтиллионов невидимых глазу частиц.</p><h2>Основное уравнение МКТ</h2><div class="formula-display">$$p = \\frac{1}{3} n m_0 \\langle v^2 \\rangle$$</div><h2>Термодинамический предел</h2><p>Абсолютная температура — это мера интенсивности хаотического теплового движения:</p><div class="formula-display">$$\\langle E_k \\rangle = \\frac{3}{2} kT$$</div><h2>Уравнение Менделеева-Клапейрона</h2><div class="formula-display">$$pV = \\frac{m}{M} RT$$</div>` },
+            'thermo_laws': { title: 'Термодинамика. Баланс энергии.', content: `<p>Термодинамика оперирует понятием сплошных сред и макросостояний.</p><h2>Первое начало термодинамики</h2><p>Переданная тепловая энергия распределяется между изменением внутренней энергии и работой расширения:</p><div class="formula-display">$$Q = \\Delta U + A$$</div><h2>Геометрия работы</h2><div class="formula-display">$$A = \\int_{V_1}^{V_2} p \\, dV$$</div>` },
+            'phase_engines': { title: 'Фазовые переходы и Пределы КПД.', content: `<p>При фазовых переходах энергия расходуется на перестройку связей структуры кристаллической решетки, не меняя кинетическую температуру системы.</p><h2>Эффективность машин (Цикл Карно)</h2><p>Второе начало термодинамики запрещает стопроцентный перевод теплоты в работу. Предел Карно равен:</p><div class="formula-display">$$\\eta_{\\text{max}} = \\frac{T_1 - T_2}{T_1}$$</div>` },
+            'electrostatics': { title: 'Электростатика. Поле как материя.', content: `<p>Электромагнитное поле — самостоятельный вид материи.</p><h2>Закон Кулона и Напряженность</h2><div class="formula-display">$$F = k \\frac{|q_1 q_2|}{r^2} \\quad \\vec{E} = \\frac{\\vec{F}}{q}$$</div><h2>Энергетическая емкость</h2><div class="formula-display">$$W = \\frac{C U^2}{2}$$</div>` },
+            'dc_current': { title: 'Постоянный ток. Дрейф зарядов.', content: `<h2>Закон Ома для полной цепи</h2><div class="formula-display">$$I = \\frac{\\mathcal{E}}{R + r}$$</div><h2>Диссипация энергии (Джоуль-Ленц)</h2><div class="formula-display">$$Q = I^2 R t$$</div>` },
+            'magnetism': { title: 'Магнитное поле. Эффекты.', content: `<h2>Сила Лоренца</h2><p>Поле меняет лишь вектор направления движения, работа силы Лоренца всегда равна нулю:</p><div class="formula-display">$$F_L = |q| v B \\sin \\alpha$$</div><h2>Сила Ампера</h2><div class="formula-display">$$F_A = I B l \\sin \\alpha$$</div>` },
+            'induction': { title: 'Электромагнитная индукция.', content: `<h2>Закон Фарадея</h2><p>Вихревое электрическое поле рождается в ответ на динамику изменения магнитного потока:</p><div class="formula-display">$$\\mathcal{E}_i = - \\frac{d\\Phi}{dt}$$</div>` },
+            'mech_oscillations': { title: 'Колебания. Уравнение гармоники.', content: `<h2>Уравнение свободного осциллятора</h2><p>Решением дифференциального уравнения вида $\\ddot{x} + \\omega^2 x = 0$ выступает гармоническая функция:</p><div class="formula-display">$$x(t) = A \\cos(\\omega t + \\varphi_0)$$</div>` },
+            'waves_sound': { title: 'Интенсивность звука и Энергия волн.', content: `<p>Звук окружает нас повсюду, но для физика это не просто субъективное ощущение слуха, а мощный поток механической энергии, летящий сквозь пространство.</p><p>Музыкальное аудио, гул турбины самолета или шепот — все это заставляет молекулы воздуха совершать упорядоченный танец. Чтобы оцифровать этот процесс, физикам пришлось ввести понятие интенсивности (или плотности потока энергии). Давай глубоко разберем математический аппарат, который описывает этот процесс, избавимся от лишнего хаоса колебаний и поймем, какая физика скрывается за интегралами.</p><h2>Мгновенная интенсивность: срез энергии в долях микросекунды</h2><p>Когда звуковая волна распространяется в среде, она переносит энергию от одной группы атомов к другой. Представь себе мысленную элементарную площадку $dS$, которая расположена строго перпендикулярно ходу звуковых лучей. За бесконечно малый промежуток времени через эту площадку протекает мощность $dP(t)$.</p><div class="formula-display">$$I(t) = \\frac{dP(t)}{dS}$$</div><p>В физике сплошных сред вектор интенсивности (вектор Умова) равен произведению избыточного звукового давления $p(t)$ на колебательную скорость частиц $v(t)$: $I(t) = p(t) \\cdot v(t)$. Это потрясающе: плотность потока зависит одновременно и от того, насколько сильно волна "сжимает" среду, и от скорости частиц.</p><h2>Почему мгновенное значение бесполезно?</h2><p>Звук — это циклический процесс. График $I(t)$ совершает дикие скачки от нуля до пиков тысячи раз в секунду. Ни барабанная перепонка, ни микрофон не фиксируют этот хаос. Нам нужно очистить данные.</p><div class="p-4 sm:p-6 bg-surface dark:bg-dark-surface bordo:bg-bordo-surface navy:bg-navy-surface border-l-4 border-black dark:border-white bordo:border-powder navy:border-ice rounded-r-xl my-6 md:my-8 shadow-sm"><h3 class="text-lg font-bold">Интегральное усреднение</h3><p class="text-sm">Чтобы перейти к осязаемой величине, используется интегрирование по периоду $T$:</p><div class="formula-display">$$I = \\frac{1}{T} \\int_{t_0}^{t_0+T} \\frac{dP(t)}{dS} dt$$</div><p class="text-sm mt-2">Интеграл выступает аккумулятором: он склеивает все порции энергии $dt$, прошедшие за цикл, а множитель $1/T$ «сглаживает» пики. На выходе мы получаем стабильную среднюю интенсивность $I$ ($Вт/м^2$).</p></div>` },
+            'optics': { title: 'Оптика. Геометрия Света.', content: `<h2>Закон Снеллиуса</h2><div class="formula-display">$$n_1 \\sin \\alpha = n_2 \\sin \\beta$$</div><h2>Уравнение тонкой линзы</h2><div class="formula-display">$$\\pm \\frac{1}{F} = \\frac{1}{d} \\pm \\frac{1}{f}$$</div>` }
+        };
+
+        const cardsDatabase = [
+    // 1. МЕХАНИКА (10)
+    { moduleId: 'mechanics', topic: 'Кинематика', front: 'Формула мгновенной скорости в дифференциальном виде?', back: '$$\\vec{v} = \\frac{d\\vec{r}}{dt}$$' },
+    { moduleId: 'mechanics', topic: 'Кинематика', front: 'Уравнение пути при равноускоренном движении?', back: '$$S = v_0 t + \\frac{at^2}{2}$$' },
+    { moduleId: 'mechanics', topic: 'Кинематика', front: 'Центростремительное ускорение?', back: '$$a_n = \\frac{v^2}{R}$$' },
+    { moduleId: 'mechanics', topic: 'Кинематика', front: 'Связь линейной скорости и угловой скорости?', back: '$$v = \\omega R$$' },
+    { moduleId: 'mechanics', topic: 'Динамика', front: 'Второй закон Ньютона как дифф. уравнение?', back: '$$m \\frac{d^2\\vec{r}}{dt^2} = \\sum \\vec{F}_i$$' },
+    { moduleId: 'mechanics', topic: 'Динамика', front: 'Закон всемирного тяготения?', back: '$$F = G \\frac{m_1 m_2}{r^2}$$' },
+    { moduleId: 'mechanics', topic: 'Статика', front: 'Формула момента силы?', back: '$$M = F \\cdot l$$' },
+    { moduleId: 'mechanics', topic: 'Законы сохранения', front: 'Формула импульса тела?', back: '$$\\vec{p} = m\\vec{v}$$' },
+    { moduleId: 'mechanics', topic: 'Законы сохранения', front: 'Закон сохранения механической энергии?', back: '$$E_k + E_p = \\text{const}$$' },
+    { moduleId: 'mechanics', topic: 'Законы сохранения', front: 'Мощность через силу и скорость?', back: '$$P = F \\cdot v$$' },
+
+    // 2. МОЛЕКУЛЯРКА (10)
+    { moduleId: 'thermodynamics', topic: 'Основы МКТ', front: 'Уравнение состояния идеального газа?', back: '$$pV = \\nu RT$$' },
+    { moduleId: 'thermodynamics', topic: 'Основы МКТ', front: 'Средняя квадратичная скорость молекул?', back: '$$v_{\\text{кв}} = \\sqrt{\\frac{3RT}{M}}$$' },
+    { moduleId: 'thermodynamics', topic: 'Основы МКТ', front: 'Связь энергии и температуры?', back: '$$\\langle E_k \\rangle = \\frac{3}{2} kT$$' },
+    { moduleId: 'thermodynamics', topic: 'Изопроцессы', front: 'Закон Бойля-Мариотта ($T=\\text{const}$)?', back: '$$p_1 V_1 = p_2 V_2$$' },
+    { moduleId: 'thermodynamics', topic: 'Изопроцессы', front: 'Закон Шарля ($V=\\text{const}$)?', back: '$$\\frac{p_1}{T_1} = \\frac{p_2}{T_2}$$' },
+    { moduleId: 'thermodynamics', topic: 'Термодинамика', front: 'Первый закон термодинамики?', back: '$$Q = \\Delta U + A$$' },
+    { moduleId: 'thermodynamics', topic: 'Термодинамика', front: 'Работа газа при изобарном процессе?', back: '$$A = p \\Delta V$$' },
+    { moduleId: 'thermodynamics', topic: 'Термодинамика', front: 'Внутренняя энергия одноатомного газа?', back: '$$U = \\frac{3}{2} \\nu RT$$' },
+    { moduleId: 'thermodynamics', topic: 'Термодинамика', front: 'Работа в адиабатном процессе?', back: '$$A = -\\Delta U$$' },
+    { moduleId: 'thermodynamics', topic: 'Двигатели', front: 'КПД цикла Карно?', back: '$$\\eta = \\frac{T_1 - T_2}{T_1}$$' },
+
+    // 3. ЭЛЕКТРОДИНАМИКА (10)
+    { moduleId: 'electrodynamics', topic: 'Электростатика', front: 'Закон Кулона?', back: '$$F = k \\frac{|q_1 q_2|}{r^2}$$' },
+    { moduleId: 'electrodynamics', topic: 'Электростатика', front: 'Напряженность точечного заряда?', back: '$$E = k \\frac{|q|}{r^2}$$' },
+    { moduleId: 'electrodynamics', topic: 'Электростатика', front: 'Связь $E$ и $U$ в однородном поле?', back: '$$E = \\frac{U}{d}$$' },
+    { moduleId: 'electrodynamics', topic: 'Электростатика', front: 'Емкость плоского конденсатора?', back: '$$C = \\frac{\\varepsilon_0 \\varepsilon S}{d}$$' },
+    { moduleId: 'electrodynamics', topic: 'Электростатика', front: 'Энергия заряженного конденсатора?', back: '$$W = \\frac{C U^2}{2}$$' },
+    { moduleId: 'electrodynamics', topic: 'Постоянный ток', front: 'Закон Ома для полной цепи?', back: '$$I = \\frac{\\mathcal{E}}{R + r}$$' },
+    { moduleId: 'electrodynamics', topic: 'Постоянный ток', front: 'Закон Джоуля-Ленца?', back: '$$Q = I^2 R t$$' },
+    { moduleId: 'electrodynamics', topic: 'Магнетизм', front: 'Сила Лоренца?', back: '$$F_L = |q| v B \\sin \\alpha$$' },
+    { moduleId: 'electrodynamics', topic: 'Магнетизм', front: 'Сила Ампера?', back: '$$F_A = I B l \\sin \\alpha$$' },
+    { moduleId: 'electrodynamics', topic: 'Индукция', front: 'Закон Фарадея?', back: '$$\\mathcal{E}_i = - \\frac{d\\Phi}{dt}$$' },
+
+    // 4. КОЛЕБАНИЯ И ВОЛНЫ (10)
+    { moduleId: 'oscillations', topic: 'Колебания', front: 'Период математического маятника?', back: '$$T = 2\\pi \\sqrt{\\frac{l}{g}}$$' },
+    { moduleId: 'oscillations', topic: 'Колебания', front: 'Период пружинного маятника?', back: '$$T = 2\\pi \\sqrt{\\frac{m}{k}}$$' },
+    { moduleId: 'oscillations', topic: 'Волны', front: 'Связь длины волны и скорости?', back: '$$\\lambda = v T = \\frac{v}{\\nu}$$' },
+    { moduleId: 'oscillations', topic: 'Волны', front: 'Интеграл средней интенсивности звука?', back: '$$I = \\frac{1}{T} \\int \\frac{dP}{dS} dt$$' },
+    { moduleId: 'oscillations', topic: 'Оптика', front: 'Закон Снеллиуса?', back: '$$n_1 \\sin \\alpha = n_2 \\sin \\beta$$' },
+    { moduleId: 'oscillations', topic: 'Оптика', front: 'Формула тонкой линзы?', back: '$$\\frac{1}{F} = \\frac{1}{d} + \\frac{1}{f}$$' },
+    { moduleId: 'oscillations', topic: 'Оптика', front: 'Связь скорости света и показателя преломления?', back: '$$v = c/n$$' },
+    { moduleId: 'oscillations', topic: 'Оптика', front: 'Условие максимумов дифракции?', back: '$$d \\sin \\varphi = k \\lambda$$' },
+    { moduleId: 'oscillations', topic: 'Колебания', front: 'Закон гармонических колебаний?', back: '$$x(t) = A \\cos(\\omega t + \\phi_0)$$' },
+    { moduleId: 'oscillations', topic: 'Волны', front: 'Связь циклической частоты и периода?', back: '$$\\omega = \\frac{2\\pi}{T}$$' }
+];
+
+        let filteredCards = []; let currentCardIndex = 0; let isCardFlipped = false; let cardResults = [];
+
+        // --- БАЗА ДАННЫХ: РАСШИРЕННЫЕ ЗАДАЧИ ПО МОДУЛЯМ ---
+        const tasksDatabase = [
+            // МЕХАНИКА (10 задач)
+            { id: 1, moduleId: 'mechanics', topic: "Кинематика", difficulty: "Легко", difficultyColor: "bg-gray-200 text-gray-700 dark:bg-zinc-800 dark:text-zinc-300 bordo:bg-powder/20 bordo:text-powder navy:bg-ice/20 navy:text-ice", question: "Автомобиль разгоняется с 0 до 20 м/с за 10 с. Чему равно ускорение?", answer: "2", unit: "м/с²", explanation: "$$a = \\frac{v-v_0}{t} = \\frac{20-0}{10} = 2 \\text{ м/с²}$$" },
+            { id: 2, moduleId: 'mechanics', topic: "Кинематика", difficulty: "Средне", difficultyColor: "bg-black text-white dark:bg-white dark:text-black bordo:bg-powder bordo:text-bordo-bg navy:bg-ice navy:text-navy-bg", question: "Тело брошено вертикально вверх со скоростью 30 м/с. На какую максимальную высоту оно поднимется? ($g=10$)", answer: "45", unit: "м", explanation: "$$h = \\frac{v_0^2}{2g} = \\frac{900}{20} = 45 \\text{ м}$$" },
+            { id: 3, moduleId: 'mechanics', topic: "Кинематика", difficulty: "Легко", difficultyColor: "bg-gray-200 text-gray-700 dark:bg-zinc-800 dark:text-zinc-300 bordo:bg-powder/20 bordo:text-powder navy:bg-ice/20 navy:text-ice", question: "Велосипедист проехал 100 м за 20 с. Чему равна его скорость?", answer: "5", unit: "м/с", explanation: "$$v = \\frac{S}{t} = \\frac{100}{20} = 5 \\text{ м/с}$$" },
+            { id: 4, moduleId: 'mechanics', topic: "Динамика", difficulty: "Средне", difficultyColor: "bg-black text-white dark:bg-white dark:text-black bordo:bg-powder bordo:text-bordo-bg navy:bg-ice navy:text-navy-bg", question: "Сила 10 Н сообщает телу ускорение 2 м/с². Чему равна масса тела?", answer: "5", unit: "кг", explanation: "$$m = \\frac{F}{a} = \\frac{10}{2} = 5 \\text{ кг}$$" },
+            { id: 5, moduleId: 'mechanics', topic: "Динамика", difficulty: "Сложно", difficultyColor: "bg-red-500 text-white dark:bg-red-900/80 dark:text-white bordo:bg-red-400/80 navy:bg-red-500/80", question: "На тело массой 2 кг действуют две взаимно перпендикулярные силы: 3 Н и 4 Н. Чему равно ускорение тела?", answer: "2.5", unit: "м/с²", explanation: "Результирующая сила по теореме Пифагора: $$F = \\sqrt{3^2+4^2} = 5 \\text{ Н}. \\; a = \\frac{F}{m} = \\frac{5}{2} = 2.5 \\text{ м/с²}$$" },
+            { id: 6, moduleId: 'mechanics', topic: "Статика", difficulty: "Средне", difficultyColor: "bg-black text-white dark:bg-white dark:text-black bordo:bg-powder bordo:text-bordo-bg navy:bg-ice navy:text-navy-bg", question: "Рычаг длиной 2 м имеет точку опоры посередине. На одном конце груз 10 кг. Какую массу нужно подвесить на другом конце для равновесия?", answer: "10", unit: "кг", explanation: "Плечи равны, значит массы должны быть равны: $$m_1l_1 = m_2l_2 \\Rightarrow m_2 = 10 \\text{ кг}$$" },
+            { id: 7, moduleId: 'mechanics', topic: "Статика", difficulty: "Сложно", difficultyColor: "bg-red-500 text-white dark:bg-red-900/80 dark:text-white bordo:bg-red-400/80 navy:bg-red-500/80", question: "Груз весом 100 Н тянут горизонтально. Сила трения составляет 20 Н. Чему равен коэффициент трения?", answer: "0.2", unit: "", explanation: "$$F_{тр} = \\mu N \\Rightarrow \\mu = \\frac{20}{100} = 0.2$$" },
+            { id: 8, moduleId: 'mechanics', topic: "Законы сохранения", difficulty: "Средне", difficultyColor: "bg-black text-white dark:bg-white dark:text-black bordo:bg-powder bordo:text-bordo-bg navy:bg-ice navy:text-navy-bg", question: "Импульс тела массой 5 кг равен 20 кг*м/с. Чему равна его скорость?", answer: "4", unit: "м/с", explanation: "$$v = \\frac{p}{m} = \\frac{20}{5} = 4 \\text{ м/с}$$" },
+            { id: 9, moduleId: 'mechanics', topic: "Законы сохранения", difficulty: "Сложно", difficultyColor: "bg-red-500 text-white dark:bg-red-900/80 dark:text-white bordo:bg-red-400/80 navy:bg-red-500/80", question: "Автомобиль массой 1000 кг увеличил скорость с 10 до 20 м/с. Какую работу совершил двигатель?", answer: "150000", unit: "Дж", explanation: "$$A = \\Delta E_k = \\frac{m(v_2^2 - v_1^2)}{2} = \\frac{1000(400-100)}{2} = 150000 \\text{ Дж}$$" },
+            { id: 10, moduleId: 'mechanics', topic: "Законы сохранения", difficulty: "Легко", difficultyColor: "bg-gray-200 text-gray-700 dark:bg-zinc-800 dark:text-zinc-300 bordo:bg-powder/20 bordo:text-powder navy:bg-ice/20 navy:text-ice", question: "Мощность двигателя 50 кВт, время работы 2 часа. Сколько энергии (в МДж) он совершил?", answer: "360", unit: "МДж", explanation: "$$A = P \\cdot t = 50000 \\text{ Вт} \cdot 7200 \\text{ с} = 360000000 \\text{ Дж} = 360 \\text{ МДж}$$" },
+
+            // ТЕРМОДИНАМИКА (10 задач - сокращено для примера)
+            { id: 11, moduleId: 'thermodynamics', topic: "МКТ", difficulty: "Легко", difficultyColor: "bg-gray-200 text-gray-700 dark:bg-zinc-800 dark:text-zinc-300 bordo:bg-powder/20 bordo:text-powder navy:bg-ice/20 navy:text-ice", question: "Средняя энергия молекулы идеального газа 6e-21 Дж. Чему равна температура?", answer: "290", unit: "К", explanation: "$$T = \\frac{2E_k}{3k} \\approx 290 \\text{ К}$$" },
+            { id: 12, moduleId: 'thermodynamics', topic: "Изопроцессы", difficulty: "Средне", difficultyColor: "bg-black text-white dark:bg-white dark:text-black bordo:bg-powder bordo:text-bordo-bg navy:bg-ice navy:text-navy-bg", question: "При изотермическом процессе объем газа увеличился в 3 раза. Во сколько раз изменилось давление?", answer: "0.33", unit: "", explanation: "$$p_1 V_1 = p_2 (3V_1) \\Rightarrow p_2 = p_1/3 \\approx 0.33$$" },
+            { id: 13, moduleId: 'thermodynamics', topic: "Термодинамика", difficulty: "Средне", difficultyColor: "bg-black text-white dark:bg-white dark:text-black bordo:bg-powder bordo:text-bordo-bg navy:bg-ice navy:text-navy-bg", question: "Система получила 1000 Дж теплоты, совершив работу 400 Дж. Изменение внутренней энергии?", answer: "600", unit: "Дж", explanation: "$$\\Delta U = Q - A = 1000 - 400 = 600 \\text{ Дж}$$" },
+            { id: 14, moduleId: 'thermodynamics', topic: "Двигатели", difficulty: "Сложно", difficultyColor: "bg-red-500 text-white dark:bg-red-900/80 dark:text-white bordo:bg-red-400/80 navy:bg-red-500/80", question: "Двигатель совершил 200 Дж работы, затратив 1000 Дж теплоты от нагревателя. Его КПД в %?", answer: "20", unit: "%", explanation: "$$\\eta = A/Q_1 = 200/1000 = 0.2 = 20\\%$$" },
+            { id: 15, moduleId: 'thermodynamics', topic: "МКТ", difficulty: "Легко", difficultyColor: "bg-gray-200 text-gray-700 dark:bg-zinc-800 dark:text-zinc-300 bordo:bg-powder/20 bordo:text-powder navy:bg-ice/20 navy:text-ice", question: "Сколько моль газа в объеме 0.5 м³ при давлении 100 кПа и температуре 300 К? ($R=8.3$)", answer: "20", unit: "моль", explanation: "$$\\nu = \\frac{pV}{RT} = \\frac{100000 \\cdot 0.5}{8.3 \\cdot 300} \\approx 20 \\text{ моль}$$" },
+            
+            // ЭЛЕКТРОДИНАМИКА (10 задач)
+            { id: 16, moduleId: 'electrodynamics', topic: "Закон Ома", difficulty: "Легко", difficultyColor: "bg-gray-200 text-gray-700 dark:bg-zinc-800 dark:text-zinc-300 bordo:bg-powder/20 bordo:text-powder navy:bg-ice/20 navy:text-ice", question: "Через резистор 10 Ом течет ток 2 А. Какое напряжение на резисторе?", answer: "20", unit: "В", explanation: "$$U = I \\cdot R = 2 \\cdot 10 = 20 \\text{ В}$$" },
+            { id: 17, moduleId: 'electrodynamics', topic: "Закон Ома", difficulty: "Средне", difficultyColor: "bg-black text-white dark:bg-white dark:text-black bordo:bg-powder bordo:text-bordo-bg navy:bg-ice navy:text-navy-bg", question: "Два резистора 10 Ом и 20 Ом соединены последовательно. Их общее сопротивление?", answer: "30", unit: "Ом", explanation: "$$R = R_1 + R_2 = 10 + 20 = 30 \\text{ Ом}$$" },
+            { id: 18, moduleId: 'electrodynamics', topic: "Магнетизм", difficulty: "Сложно", difficultyColor: "bg-red-500 text-white dark:bg-red-900/80 dark:text-white bordo:bg-red-400/80 navy:bg-red-500/80", question: "Заряд 1 Кл влетает в магнитное поле 1 Тл со скоростью 10 м/с перпендикулярно линиям. Сила Лоренца?", answer: "10", unit: "Н", explanation: "$$F_L = qvB = 1 \\cdot 10 \\cdot 1 = 10 \\text{ Н}$$" },
+            { id: 19, moduleId: 'electrodynamics', topic: "Конденсаторы", difficulty: "Средне", difficultyColor: "bg-black text-white dark:bg-white dark:text-black bordo:bg-powder bordo:text-bordo-bg navy:bg-ice navy:text-navy-bg", question: "Конденсатор 2 мкФ заряжен до 100 В. Какой заряд на нем?", answer: "200", unit: "мкКл", explanation: "$$q = C \\cdot U = 2 \\cdot 100 = 200 \\text{ мкКл}$$" },
+            { id: 20, moduleId: 'electrodynamics', topic: "Энергия", difficulty: "Сложно", difficultyColor: "bg-red-500 text-white dark:bg-red-900/80 dark:text-white bordo:bg-red-400/80 navy:bg-red-500/80", question: "Через проводник течет ток 5 А в течение 10 с. Выделенное тепло 2500 Дж. Сопротивление?", answer: "10", unit: "Ом", explanation: "$$Q = I^2Rt \\Rightarrow R = \\frac{2500}{25 \\cdot 10} = 10 \\text{ Ом}$$" },
+
+            // КОЛЕБАНИЯ И ВОЛНЫ (10 задач)
+            { id: 21, moduleId: 'oscillations', topic: "Колебания", difficulty: "Легко", difficultyColor: "bg-gray-200 text-gray-700 dark:bg-zinc-800 dark:text-zinc-300 bordo:bg-powder/20 bordo:text-powder navy:bg-ice/20 navy:text-ice", question: "Период колебаний маятника 2 с. Чему равна частота в Гц?", answer: "0.5", unit: "Гц", explanation: "$$\\nu = 1/T = 1/2 = 0.5 \\text{ Гц}$$" },
+            { id: 22, moduleId: 'oscillations', topic: "Волны", difficulty: "Средне", difficultyColor: "bg-black text-white dark:bg-white dark:text-black bordo:bg-powder bordo:text-bordo-bg navy:bg-ice navy:text-navy-bg", question: "Скорость волны 340 м/с, длина волны 2 м. Чему равна частота?", answer: "170", unit: "Гц", explanation: "$$\\nu = v/\\lambda = 340/2 = 170 \\text{ Гц}$$" },
+            { id: 23, moduleId: 'oscillations', topic: "Оптика", difficulty: "Средне", difficultyColor: "bg-black text-white dark:bg-white dark:text-black bordo:bg-powder bordo:text-bordo-bg navy:bg-ice navy:text-navy-bg", question: "Предмет находится на расстоянии 0.6 м от линзы с фокусом 0.3 м. На каком расстоянии (в м) получится изображение?", answer: "0.6", unit: "м", explanation: "$$1/F = 1/d + 1/f \\Rightarrow 1/0.3 = 1/0.6 + 1/f \\Rightarrow f = 0.6 \\text{ м}$$" },
+            { id: 24, moduleId: 'oscillations', topic: "Колебания", difficulty: "Сложно", difficultyColor: "bg-red-500 text-white dark:bg-red-900/80 dark:text-white bordo:bg-red-400/80 navy:bg-red-500/80", question: "Пружинный маятник совершает колебания по закону $x = 0.1 \\cos(10t)$. Какова циклическая частота?", answer: "10", unit: "рад/с", explanation: "Циклическая частота — коэффициент при времени $t$." },
+            { id: 25, moduleId: 'oscillations', topic: "Оптика", difficulty: "Сложно", difficultyColor: "bg-red-500 text-white dark:bg-red-900/80 dark:text-white bordo:bg-red-400/80 navy:bg-red-500/80", question: "Показатель преломления среды 1.5. Какова скорость света в этой среде (в 10⁸ м/с)?", answer: "2", unit: "10⁸ м/с", explanation: "$$v = c/n = 3 / 1.5 = 2 \\text{ (в 10⁸ м/с)}$$" }
+        ];
+
+        const views = {
+            home: `<div class="animate-fade-in"><section class="max-w-4xl mb-24"><h1 class="text-5xl md:text-7xl lg:text-8xl font-black leading-none mb-8 tracking-tighter text-black dark:text-white bordo:text-powder navy:text-ice transition-colors">Изучай физику.<br><span class="text-gray-300 dark:text-zinc-700 bordo:text-powder/40 navy:text-ice/40 transition-colors">Без лишнего шума.</span></h1><p class="text-lg md:text-2xl text-gray-500 dark:text-zinc-400 bordo:text-powder/70 navy:text-ice/70 font-medium leading-relaxed max-w-2xl mb-12">Структурированная теория, интервальные повторения формул и задачи с моментальной проверкой.</p><div class="flex flex-col sm:flex-row gap-4"><button onclick="navigate('theory')" class="px-8 py-4 bg-black dark:bg-white bordo:bg-powder navy:bg-ice text-white dark:text-black bordo:text-bordo-bg navy:text-navy-bg font-bold rounded-sm hover:opacity-80 transition-opacity uppercase tracking-wider text-sm flex justify-center items-center gap-2">Читать теорию</button><button onclick="navigate('tasks')" class="px-8 py-4 bg-white dark:bg-dark-surface bordo:bg-bordo-surface navy:bg-navy-surface border-2 border-gray-200 dark:border-zinc-700 bordo:border-powder/30 navy:border-ice/30 text-black dark:text-white bordo:text-powder navy:text-ice font-bold rounded-sm hover:border-black dark:hover:border-white bordo:hover:border-powder navy:hover:border-ice transition-colors uppercase tracking-wider text-sm flex justify-center items-center gap-2">Порешать задачи</button></div></section></div>`, 
+            theory: `<div class="flex flex-col md:flex-row gap-6 lg:gap-12 animate-fade-in w-full"><button onclick="document.getElementById('sidebar-container').classList.toggle('hidden');" class="md:hidden w-full bg-gray-50 dark:bg-zinc-800/50 bordo:bg-bordo-surface/50 navy:bg-navy-surface/50 p-4 rounded-2xl flex justify-between items-center font-bold border border-gray-200 dark:border-zinc-700 bordo:border-powder/20 navy:border-ice/20 text-black dark:text-white bordo:text-powder navy:text-ice"><span>Оглавление (Темы)</span></button><aside class="hidden md:block w-full md:w-1/4 md:sticky md:top-24 max-h-[calc(100vh-8rem)] overflow-y-auto pr-2 custom-scrollbar transition-all" id="sidebar-container"></aside><article class="w-full md:w-3/4 pb-32 min-w-0"><div id="theory-article-content" class="article-content animate-fade-in text-gray-500 bordo:text-powder/50 navy:text-ice/50">Выберите тему.</div></article></div>`,
+            cards: `<div id="cards-main-container" class="w-full animate-fade-in pb-20"></div>`,
+            tasks: `<div id="tasks-main-container" class="w-full animate-fade-in pb-20"></div>`,
+            rating: `<div class="max-w-3xl mx-auto py-8 sm:py-10 animate-fade-in"><div class="mb-10 sm:mb-12 text-center md:text-left"><h1 class="text-3xl sm:text-4xl md:text-5xl font-black mb-4 tracking-tight text-black dark:text-white bordo:text-powder navy:text-ice">Рейтинг</h1></div><div id="rating-container" class="space-y-3 sm:space-y-4 pb-20"></div></div>`,
+            profile: `<div id="profile-container" class="w-full animate-fade-in pb-20"></div>`
+        };
+
+        const contentContainer = document.getElementById('app-content');
+
+        function navigate(page) {
+            document.getElementById('mobile-menu').classList.add('hidden');
+            if(views[page]) contentContainer.innerHTML = views[page];
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            document.querySelectorAll('#desktop-nav .nav-link').forEach(link => { 
+                const isActive = link.dataset.page === page;
+                link.classList.toggle('active', isActive); link.classList.toggle('text-black', isActive); link.classList.toggle('dark:text-white', isActive); link.classList.toggle('bordo:text-powder', isActive); link.classList.toggle('navy:text-ice', isActive);
+            });
+
+            if (page === 'theory') { renderSidebar(); loadTopic('waves_sound'); }
+            if (page === 'cards') { renderCardsMenu(); } 
+            if (page === 'tasks') { renderTasksMenu(); } // Теперь открывается МЕНЮ задач!
+            if (page === 'rating') { renderRatingList(); }
+            if (page === 'profile') { renderProfile(); }
+        }
+
+        function renderProfile() {
+    const container = document.getElementById('profile-container'); if(!container) return;
+    const rank = getRank(userXP);
+    const initials = userName.charAt(0).toUpperCase();
+
+    container.innerHTML = `
+        <div class="max-w-md mx-auto py-10 animate-fade-in flex flex-col items-center">
+            <div class="w-32 h-32 rounded-full bg-gradient-to-tr from-blue-400 to-indigo-500 flex items-center justify-center text-white text-5xl font-black mb-6 shadow-xl">
+                ${initials}
+            </div>
+            <h1 class="text-3xl font-black text-black dark:text-white">${userName}</h1>
+            <p class="mt-2 font-bold ${rank.color} uppercase tracking-widest text-sm">${rank.name}</p>
+
+            <div class="grid grid-cols-2 gap-4 mt-8 w-full">
+                <div class="bg-surface dark:bg-dark-surface p-6 rounded-3xl border border-gray-200 dark:border-zinc-800 text-center">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Опыт (XP)</p>
+                    <p class="text-2xl font-black">${userXP}</p>
+                </div>
+                <div class="bg-surface dark:bg-dark-surface p-6 rounded-3xl border border-gray-200 dark:border-zinc-800 text-center">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Уровень</p>
+                    <p class="text-2xl font-black">${Math.floor(userXP/100) + 1}</p>
+                </div>
+            </div>
+            
+            <div class="mt-8 w-full">
+                <input type="text" id="profile-name-input" value="${userName}" onblur="saveUserName(this.value)" class="w-full px-6 py-4 rounded-xl border-2 border-gray-200 dark:border-zinc-700 bg-white dark:bg-dark-bg focus:border-black outline-none font-bold text-lg text-center">
+            </div>
+        </div>
+    `;
+}
+
+// Добавь эту функцию для статуса, если захочешь его сохранять в Firebase позже
+function updateStatus(status) {
+    console.log("Статус обновлен:", status);
+    // Сюда потом прикрутим запись в Firebase
+}
+
+        async function renderRatingList() {
+    const container = document.getElementById('rating-container'); if(!container) return;
+    let board = [ { name: userName, xp: userXP, isMe: true } ];
+    
+    if (db) {
+        try {
+            const snapshot = await db.collection('users').orderBy('xp', 'desc').limit(20).get();
+            let cloudBoard = [];
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                cloudBoard.push({ name: data.name || 'Гость', xp: data.xp || 0, isMe: doc.id === userId });
+            });
+            board = cloudBoard;
+        } catch (e) { console.error(e); }
+    }
+
+    board.sort((a,b) => b.xp - a.xp);
+    let html = '';
+    board.forEach((user, index) => {
+        const rank = getRank(user.xp);
+        const isMeClass = user.isMe ? 'border-green-500 shadow-md' : 'border-gray-200 dark:border-zinc-800';
+        html += `
+            <div class="flex items-center justify-between p-4 bg-surface dark:bg-dark-surface rounded-2xl border-2 ${isMeClass}">
+                <div class="flex items-center gap-4 min-w-0">
+                    <div class="w-10 h-10 rounded-full bg-gray-200 dark:bg-zinc-800 flex items-center justify-center font-black text-sm">${index + 1}</div>
+                    <div class="flex flex-col truncate">
+                        <span class="font-bold text-lg truncate">${user.name}</span>
+                        <span class="text-[10px] font-bold uppercase ${rank.color}">${rank.name}</span>
+                    </div>
+                </div>
+                <span class="font-black text-lg">${user.xp} XP</span>
+            </div>`;
+    });
+    container.innerHTML = html;
+}
+
+        function renderSidebar() {
+            const sidebarContainer = document.getElementById('sidebar-container'); if (!sidebarContainer) return;
+            let html = '';
+            dbStructure.modules.forEach(module => {
+                html += `<h3 class="font-bold mt-6 md:mt-8 first:mt-0 mb-3 md:mb-4 uppercase tracking-widest text-xs text-gray-400 dark:text-zinc-600 bordo:text-powder/50 navy:text-ice/50">${module.title}</h3><ul class="space-y-3 font-medium text-sm border-l border-gray-100 dark:border-zinc-800 bordo:border-powder/20 navy:border-ice/20 mb-6 md:mb-8">`;
+                module.topics.forEach(topic => { html += `<li><a href="#" onclick="loadTopic('${topic.id}'); return false;" data-topic="${topic.id}" class="theory-nav-link block -ml-[1px] pl-4 border-l-2 py-1 text-gray-500 dark:text-zinc-500 bordo:text-powder/60 navy:text-ice/60 border-transparent hover:text-black dark:hover:text-white bordo:hover:text-powder navy:hover:text-ice hover:border-gray-300 dark:hover:border-zinc-600 bordo:hover:border-powder/50 navy:hover:border-ice/50 transition-all">${topic.title}</a></li>`; });
+                html += `</ul>`;
+            });
+            sidebarContainer.innerHTML = html;
+        }
+
+        function loadTopic(topicId) {
+            const container = document.getElementById('theory-article-content'); if (!container) return;
+            document.querySelectorAll('.theory-nav-link').forEach(link => { 
+                const isActive = link.dataset.topic === topicId; 
+                link.classList.toggle('text-black', isActive); link.classList.toggle('dark:text-white', isActive); link.classList.toggle('border-black', isActive); link.classList.toggle('dark:border-white', isActive); link.classList.toggle('font-bold', isActive);
+            });
+            if (contentDB[topicId]) { container.innerHTML = `<div class="animate-fade-in"><h1 class="text-3xl font-black mb-8 text-black dark:text-white bordo:text-powder navy:text-ice">${contentDB[topicId].title}</h1>${contentDB[topicId].content}</div>`; if (window.MathJax && window.MathJax.typesetPromise) MathJax.typesetPromise([container]); }
+        }
+
+        // --- ЛОГИКА МЕНЮ КАРТОЧЕК ---
+        function renderCardsMenu() {
+            const container = document.getElementById('cards-main-container'); if (!container) return;
+            const count = (mId) => cardsDatabase.filter(c => c.moduleId === mId).length;
+            container.innerHTML = `<div class="max-w-4xl mx-auto py-8 px-2"><div class="mb-10"><h1 class="text-3xl md:text-5xl font-black mb-4 tracking-tight text-black dark:text-white bordo:text-powder navy:text-ice">Флеш-карточки</h1><p class="text-gray-500 dark:text-zinc-400 bordo:text-powder/70 navy:text-ice/70 font-medium text-base sm:text-lg">Выбери раздел для тренировки.</p></div><div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <button onclick="startCards('mechanics')" class="p-6 bg-surface dark:bg-dark-surface bordo:bg-bordo-surface navy:bg-navy-surface border-2 border-gray-200 dark:border-zinc-800 bordo:border-powder/20 navy:border-ice/20 rounded-3xl text-left group hover:border-black dark:hover:border-white bordo:hover:border-powder navy:hover:border-ice transition-all"><h3 class="text-xl font-black mb-2 text-black dark:text-white bordo:text-powder navy:text-ice group-hover:translate-x-2 transition-transform">1. Механика</h3><p class="text-sm opacity-70 text-gray-500 dark:text-zinc-400 bordo:text-powder navy:text-ice">${count('mechanics')} карточек</p></button>
+                <button onclick="startCards('thermodynamics')" class="p-6 bg-surface dark:bg-dark-surface bordo:bg-bordo-surface navy:bg-navy-surface border-2 border-gray-200 dark:border-zinc-800 bordo:border-powder/20 navy:border-ice/20 rounded-3xl text-left group hover:border-black dark:hover:border-white bordo:hover:border-powder navy:hover:border-ice transition-all"><h3 class="text-xl font-black mb-2 text-black dark:text-white bordo:text-powder navy:text-ice group-hover:translate-x-2 transition-transform">2. Молекулярка</h3><p class="text-sm opacity-70 text-gray-500 dark:text-zinc-400 bordo:text-powder navy:text-ice">${count('thermodynamics')} карточек</p></button>
+                <button onclick="startCards('electrodynamics')" class="p-6 bg-surface dark:bg-dark-surface bordo:bg-bordo-surface navy:bg-navy-surface border-2 border-gray-200 dark:border-zinc-800 bordo:border-powder/20 navy:border-ice/20 rounded-3xl text-left group hover:border-black dark:hover:border-white bordo:hover:border-powder navy:hover:border-ice transition-all"><h3 class="text-xl font-black mb-2 text-black dark:text-white bordo:text-powder navy:text-ice group-hover:translate-x-2 transition-transform">3. Электродинамика</h3><p class="text-sm opacity-70 text-gray-500 dark:text-zinc-400 bordo:text-powder navy:text-ice">${count('electrodynamics')} карточек</p></button>
+                <button onclick="startCards('oscillations')" class="p-6 bg-surface dark:bg-dark-surface bordo:bg-bordo-surface navy:bg-navy-surface border-2 border-gray-200 dark:border-zinc-800 bordo:border-powder/20 navy:border-ice/20 rounded-3xl text-left group hover:border-black dark:hover:border-white bordo:hover:border-powder navy:hover:border-ice transition-all"><h3 class="text-xl font-black mb-2 text-black dark:text-white bordo:text-powder navy:text-ice group-hover:translate-x-2 transition-transform">4. Волны и Оптика</h3><p class="text-sm opacity-70 text-gray-500 dark:text-zinc-400 bordo:text-powder navy:text-ice">${count('oscillations')} карточек</p></button>
+            </div></div>`;
+        }
+
+        // --- ЛОГИКА МЕНЮ ЗАДАЧ (НОВОЕ) ---
+        function renderTasksMenu() {
+            const container = document.getElementById('tasks-main-container'); if (!container) return;
+            const count = (mId) => tasksDatabase.filter(t => t.moduleId === mId).length;
+            container.innerHTML = `<div class="max-w-4xl mx-auto py-8 px-2"><div class="mb-10"><h1 class="text-3xl md:text-5xl font-black mb-4 tracking-tight text-black dark:text-white bordo:text-powder navy:text-ice">Решение задач</h1><p class="text-gray-500 dark:text-zinc-400 bordo:text-powder/70 navy:text-ice/70 font-medium text-base sm:text-lg">Выбери раздел для практики.</p></div><div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <button onclick="startTasks('mechanics')" class="p-6 bg-surface dark:bg-dark-surface bordo:bg-bordo-surface navy:bg-navy-surface border-2 border-gray-200 dark:border-zinc-800 bordo:border-powder/20 navy:border-ice/20 rounded-3xl text-left group hover:border-black dark:hover:border-white bordo:hover:border-powder navy:hover:border-ice transition-all"><h3 class="text-xl font-black mb-2 text-black dark:text-white bordo:text-powder navy:text-ice group-hover:translate-x-2 transition-transform">1. Механика</h3><p class="text-sm opacity-70 text-gray-500 dark:text-zinc-400 bordo:text-powder navy:text-ice">${count('mechanics')} задач</p></button>
+                <button onclick="startTasks('thermodynamics')" class="p-6 bg-surface dark:bg-dark-surface bordo:bg-bordo-surface navy:bg-navy-surface border-2 border-gray-200 dark:border-zinc-800 bordo:border-powder/20 navy:border-ice/20 rounded-3xl text-left group hover:border-black dark:hover:border-white bordo:hover:border-powder navy:hover:border-ice transition-all"><h3 class="text-xl font-black mb-2 text-black dark:text-white bordo:text-powder navy:text-ice group-hover:translate-x-2 transition-transform">2. Молекулярка</h3><p class="text-sm opacity-70 text-gray-500 dark:text-zinc-400 bordo:text-powder navy:text-ice">${count('thermodynamics')} задач</p></button>
+                <button onclick="startTasks('electrodynamics')" class="p-6 bg-surface dark:bg-dark-surface bordo:bg-bordo-surface navy:bg-navy-surface border-2 border-gray-200 dark:border-zinc-800 bordo:border-powder/20 navy:border-ice/20 rounded-3xl text-left group hover:border-black dark:hover:border-white bordo:hover:border-powder navy:hover:border-ice transition-all"><h3 class="text-xl font-black mb-2 text-black dark:text-white bordo:text-powder navy:text-ice group-hover:translate-x-2 transition-transform">3. Электродинамика</h3><p class="text-sm opacity-70 text-gray-500 dark:text-zinc-400 bordo:text-powder navy:text-ice">${count('electrodynamics')} задач</p></button>
+                <button onclick="startTasks('oscillations')" class="p-6 bg-surface dark:bg-dark-surface bordo:bg-bordo-surface navy:bg-navy-surface border-2 border-gray-200 dark:border-zinc-800 bordo:border-powder/20 navy:border-ice/20 rounded-3xl text-left group hover:border-black dark:hover:border-white bordo:hover:border-powder navy:hover:border-ice transition-all"><h3 class="text-xl font-black mb-2 text-black dark:text-white bordo:text-powder navy:text-ice group-hover:translate-x-2 transition-transform">4. Волны и Оптика</h3><p class="text-sm opacity-70 text-gray-500 dark:text-zinc-400 bordo:text-powder navy:text-ice">${count('oscillations')} задач</p></button>
+            </div></div>`;
+        }
+
+        // --- ЛОГИКА ТРЕНИРОВКИ КАРТОЧЕК ---
+        function startCards(moduleId) {
+            filteredCards = cardsDatabase.filter(c => c.moduleId === moduleId).sort(() => Math.random() - 0.5);
+            cardResults = new Array(filteredCards.length).fill(null); currentCardIndex = 0; isCardFlipped = false; renderCardPlayer();
+        }
+
+        function renderCardPlayer() {
+            const container = document.getElementById('cards-main-container');
+            container.innerHTML = `<div class="flex flex-col items-center justify-center min-h-[50vh] pt-4"><div class="w-full max-w-xl mb-4 flex justify-between items-center px-4"><button onclick="renderCardsMenu()" class="text-[10px] font-bold uppercase tracking-widest flex items-center gap-1 text-gray-500 hover:text-black dark:text-zinc-400 dark:hover:text-white transition-colors">← К темам</button><p class="text-[10px] font-bold uppercase text-gray-500 dark:text-zinc-400" id="card-counter"></p></div>
+                <div class="perspective-1000 w-full max-w-xl h-72 cursor-pointer relative" id="flashcard-container" onclick="toggleCardFlip()">
+                    <div class="relative w-full h-full transform-style-3d shadow-md rounded-3xl">
+                        <div class="absolute w-full h-full backface-hidden bg-surface dark:bg-dark-surface bordo:bg-bordo-surface navy:bg-navy-surface border-2 border-black dark:border-zinc-700 bordo:border-powder/50 navy:border-ice/50 rounded-3xl flex flex-col items-center justify-center p-6 text-center"><span id="card-topic-label" class="text-[10px] font-bold opacity-60 absolute top-4 text-gray-400 dark:text-zinc-500">Вопрос</span><div id="card-front-content" class="text-lg font-bold w-full text-black dark:text-white bordo:text-powder navy:text-ice"></div></div>
+                        <div class="theme-card-back absolute w-full h-full backface-hidden rotate-y-180 bg-black bordo:bg-powder navy:bg-ice text-white bordo:text-bordo-bg navy:text-navy-bg border-2 border-black bordo:border-powder navy:border-ice rounded-3xl flex flex-col items-center justify-center p-6 text-center"><span class="text-[10px] font-bold opacity-60 absolute top-4">Ответ</span><div id="card-back-content" class="text-base font-medium w-full"></div></div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-4 gap-2 mt-6 w-full max-w-xl px-2"><button onclick="prevCard()" class="py-3 bg-white dark:bg-dark-surface bordo:bg-bordo-surface navy:bg-navy-surface border border-gray-200 dark:border-zinc-700 rounded-xl font-bold flex justify-center items-center text-gray-500 dark:text-zinc-400">←</button><button onclick="answerCard(false)" class="py-3 bg-red-50 dark:bg-red-900/10 bordo:bg-red-900/20 navy:bg-red-900/20 border border-red-200 dark:border-red-900/50 rounded-xl font-bold text-red-600 dark:text-red-400">❌</button><button onclick="answerCard(true)" class="py-3 bg-green-50 dark:bg-green-900/10 bordo:bg-green-900/20 navy:bg-green-900/20 border border-green-200 dark:border-green-900/50 rounded-xl font-bold text-green-600 dark:text-green-400">✅</button><button onclick="nextCard()" class="py-3 bg-white dark:bg-dark-surface bordo:bg-bordo-surface navy:bg-navy-surface border border-gray-200 dark:border-zinc-700 rounded-xl font-bold flex justify-center items-center text-gray-500 dark:text-zinc-400">→</button></div>
+            </div>`;
+            updateCardText();
+        }
+
+        function toggleCardFlip() { isCardFlipped = !isCardFlipped; document.getElementById('flashcard-container').classList.toggle('card-flipped', isCardFlipped); }
+        function answerCard(knows) { cardResults[currentCardIndex] = knows; if (currentCardIndex === filteredCards.length - 1) showStats(); else nextCard(); }
+        function nextCard() { currentCardIndex = (currentCardIndex + 1) % filteredCards.length; if (isCardFlipped) { toggleCardFlip(); setTimeout(updateCardText, 300); } else updateCardText(); }
+        function prevCard() { currentCardIndex = (currentCardIndex - 1 + filteredCards.length) % filteredCards.length; if (isCardFlipped) { toggleCardFlip(); setTimeout(updateCardText, 300); } else updateCardText(); }
+
+        function updateCardText() {
+            const frontEl = document.getElementById('card-front-content'), backEl = document.getElementById('card-back-content'), topicEl = document.getElementById('card-topic-label');
+            if (!frontEl || !filteredCards.length) return;
+            const card = filteredCards[currentCardIndex]; topicEl.innerText = card.topic; frontEl.innerHTML = card.front; backEl.innerHTML = card.back;
+            document.getElementById('card-counter').innerText = `${currentCardIndex + 1} из ${filteredCards.length}`;
+            if (window.MathJax && window.MathJax.typesetPromise) MathJax.typesetPromise([frontEl, backEl]);
+        }
+
+        function showStats() {
+            const container = document.getElementById('cards-main-container');
+            const total = filteredCards.length, known = cardResults.filter(r => r === true).length, percentage = Math.round((known / total) * 100);
+            const earnedXP = known * 10; userXP += earnedXP;
+            localStorage.setItem('physwiki_xp', userXP); syncUserDataToCloud();
+
+            container.innerHTML = `<div class="flex flex-col items-center justify-center min-h-[50vh] text-center px-4 pt-4"><h2 class="text-2xl font-black mb-6 text-black dark:text-white bordo:text-powder navy:text-ice">Колода завершена</h2><div class="radial-progress shadow-sm mb-6 text-green-500" style="--progress: ${percentage}%;" data-progress="${percentage}%"></div><p class="font-bold text-black dark:text-white bordo:text-powder navy:text-ice">Ты знаешь ${known} из ${total} карточек. <span class="text-green-500">+${earnedXP} XP</span></p><div class="flex gap-4 mt-8 w-full max-w-sm"><button onclick="startCards(activeCardModule)" class="px-6 py-3 bg-black dark:bg-white bordo:bg-powder navy:bg-ice text-white dark:text-black bordo:text-bordo-bg navy:text-navy-bg font-bold rounded-xl flex-1">Ещё раз</button><button onclick="renderCardsMenu()" class="px-6 py-3 bg-white dark:bg-dark-surface bordo:bg-bordo-surface navy:bg-navy-surface border border-gray-200 dark:border-zinc-700 text-black dark:text-white bordo:text-powder navy:text-ice font-bold rounded-xl flex-1">К темам</button></div></div>`;
+        }
+
+        // --- ЛОГИКА ТРЕНИРОВКИ ЗАДАЧ ---
+        function startTasks(moduleId) {
+            const filteredTasks = tasksDatabase.filter(t => t.moduleId === moduleId);
+            renderTasksList(filteredTasks);
+        }
+
+        function renderTasksList(filteredTasks) {
+            const container = document.getElementById('tasks-main-container'); if (!container) return;
+            
+            if (filteredTasks.length === 0) {
+                container.innerHTML = `<div class="flex flex-col items-center justify-center min-h-[50vh] text-center"><h2 class="text-2xl font-bold mb-4 text-black dark:text-white bordo:text-powder navy:text-ice">В этом разделе пока нет задач</h2><button onclick="renderTasksMenu()" class="px-6 py-3 bg-black dark:bg-white text-white dark:text-black bordo:bg-powder bordo:text-bordo-bg navy:bg-ice navy:text-navy-bg font-bold rounded-xl">Вернуться к темам</button></div>`;
+                return;
+            }
+
+            let html = `
+                <div class="max-w-3xl mx-auto py-8 sm:py-10 animate-fade-in">
+                    <div class="mb-6 flex justify-between items-center px-4 md:px-0">
+                        <button onclick="renderTasksMenu()" class="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-black dark:text-zinc-400 dark:hover:text-white bordo:text-powder/70 bordo:hover:text-powder navy:text-ice/70 navy:hover:text-ice transition-colors flex items-center gap-1 sm:gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
+                            К темам
+                        </button>
+                    </div>
+                    <div class="space-y-6 sm:space-y-8 pb-20">
+            `;
+
+            filteredTasks.forEach(task => {
+                html += `<div class="bg-surface dark:bg-dark-surface bordo:bg-bordo-surface navy:bg-navy-surface p-6 sm:p-10 rounded-3xl border border-gray-200 dark:border-zinc-800 bordo:border-powder/20 navy:border-ice/20 shadow-sm"><div class="flex justify-between items-start mb-4"><span class="${task.difficultyColor} px-2 py-1 text-[10px] font-bold uppercase rounded-sm">${task.difficulty}</span><span class="text-gray-400 dark:text-zinc-500 text-xs font-bold uppercase">${task.topic}</span></div><h3 class="text-lg md:text-xl font-bold mb-6 text-black dark:text-white bordo:text-powder navy:text-ice">${task.question}</h3><div class="flex flex-col sm:flex-row gap-3"><div class="relative flex-grow"><input type="number" id="input-task-${task.id}" placeholder="Ответ" class="task-input w-full px-4 py-3 rounded-xl border-2 bg-white dark:bg-dark-bg bordo:bg-bordo-bg navy:bg-navy-bg border-gray-200 dark:border-zinc-700 bordo:border-powder/30 navy:border-ice/30 focus:border-black dark:focus:border-white outline-none font-bold text-lg text-black dark:text-white bordo:text-powder navy:text-ice"><span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 font-bold">${task.unit}</span></div><button onclick="checkAnswer(${task.id})" id="btn-task-${task.id}" class="px-6 py-3 bg-black dark:bg-white bordo:bg-powder navy:bg-ice text-white dark:text-black bordo:text-bordo-bg navy:text-navy-bg font-bold rounded-xl uppercase text-sm">Проверить</button></div><div id="feedback-task-${task.id}" class="hidden mt-6 p-4 rounded-2xl border-2"><div class="flex items-center gap-2 mb-2"><span id="feedback-icon-${task.id}"></span><h4 id="feedback-title-${task.id}" class="font-bold"></h4></div><div id="feedback-explanation-${task.id}" class="text-sm border-t border-gray-200 dark:border-zinc-700 pt-4 mt-4 text-gray-600 dark:text-zinc-300 bordo:text-powder/90 navy:text-ice/90">${task.explanation}</div></div></div>`;
+            });
+            
+            html += `</div></div>`;
+            container.innerHTML = html; 
+            if (window.MathJax && window.MathJax.typesetPromise) MathJax.typesetPromise([container]);
+        }
+
+        function checkAnswer(taskId) {
+            const task = tasksDatabase.find(t => t.id === taskId);
+            const inputEl = document.getElementById(`input-task-${taskId}`), feedbackEl = document.getElementById(`feedback-task-${taskId}`), iconEl = document.getElementById(`feedback-icon-${taskId}`), titleEl = document.getElementById(`feedback-title-${taskId}`), explEl = document.getElementById(`feedback-explanation-${taskId}`), btnEl = document.getElementById(`btn-task-${taskId}`);
+            const userAnswer = inputEl.value.trim();
+            if (userAnswer === "") return;
+            feedbackEl.classList.remove('hidden');
+            if (userAnswer === task.answer) {
+                feedbackEl.className = 'mt-6 p-4 rounded-2xl border-2 border-green-200 bg-green-50 dark:bg-green-900/10 dark:border-green-900/50 bordo:bg-green-900/20 navy:bg-green-900/20'; iconEl.innerText = '✅'; titleEl.innerText = 'Верно!'; titleEl.className = 'font-bold text-green-800 dark:text-green-400 bordo:text-green-300 navy:text-green-300';
+                inputEl.className = 'task-input w-full px-4 py-3 rounded-xl border-2 border-green-400 bg-green-50 dark:bg-green-900/10 text-green-800 dark:text-green-400 font-bold text-lg outline-none'; inputEl.disabled = true; btnEl.classList.add('hidden'); 
+            } else {
+                feedbackEl.className = 'mt-6 p-4 rounded-2xl border-2 border-red-200 bg-red-50 dark:bg-red-900/10 dark:border-red-900/50 bordo:bg-red-900/20 navy:bg-red-900/20'; iconEl.innerText = '❌'; titleEl.innerText = 'Ошибка. Посмотри разбор!'; titleEl.className = 'font-bold text-red-800 dark:text-red-400 bordo:text-red-300 navy:text-red-300';
+                inputEl.classList.add('border-red-400', 'dark:border-red-500');
+            }
+            if (window.MathJax && window.MathJax.typesetPromise) MathJax.typesetPromise([explEl]);
+        }
+
+        function toggleMobileMenu() { document.getElementById('mobile-menu').classList.toggle('hidden'); }
+        document.addEventListener('DOMContentLoaded', () => { navigate('home'); });
+    </script>
+</body>
+</html>

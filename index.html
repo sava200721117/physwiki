@@ -41,6 +41,21 @@
     <style>
         body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
         * { transition-property: background-color, border-color, color, fill, stroke; transition-duration: 300ms; }
+        .glass-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .scientist-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.5s ease-out, opacity 0.5s ease;
+        opacity: 0;
+    }
+    .scientist-content.active {
+        max-height: 500px; /* Достаточно для текста */
+        opacity: 1;
+    }
         .nav-link { position: relative; transition: color 0.2s ease; }
         .nav-link::after { content: ''; position: absolute; width: 0; height: 2px; bottom: -4px; left: 0; background-color: currentColor; transition: width 0.3s ease; }
         .nav-link:hover::after, .nav-link.active::after { width: 100%; }
@@ -120,6 +135,8 @@
                 </footer>
             </blockquote>
         </div>
+    
+    
 
     <footer class="border-t border-gray-100 dark:border-zinc-800 bordo:border-powder/10 navy:border-ice/10 mt-auto py-10 md:py-12">
         <div class="max-w-5xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 md:gap-6 text-center md:text-left">
@@ -847,6 +864,10 @@ function updateStatus(status) {
 
         function toggleMobileMenu() { document.getElementById('mobile-menu').classList.toggle('hidden'); }
         document.addEventListener('DOMContentLoaded', () => { navigate('home'); });
+        function toggleScientist(element) {
+        const content = element.nextElementSibling;
+        content.classList.toggle('active');
+    }
     </script>
 </body>
 </html>

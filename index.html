@@ -123,25 +123,49 @@
 
     <main class="flex-grow w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 md:py-16" id="app-content"></main>
 
-    <div id="quote-section" class="mt-12 p-6 sm:p-8 rounded-3xl backdrop-blur-xl border border-white/20 
-            bg-white/10 dark:bg-black/10 bordo:bg-bordo-surface/20 navy:bg-navy-surface/20
-            shadow-lg transition-all duration-500">
-            <blockquote class="italic text-center">
-                <p id="quote-text" class="text-lg md:text-xl font-medium text-black dark:text-white bordo:text-powder navy:text-ice transition-colors">
-                    «Никакое количество экспериментов не докажет, что я прав; но достаточно одного эксперимента, чтобы доказать, что я ошибаюсь».
-                </p>
-                <footer id="quote-author" class="mt-4 text-sm uppercase tracking-widest opacity-70 text-black dark:text-white bordo:text-powder/70 navy:text-ice/70">
-                    — Альберт Эйнштейн
-                </footer>
-            </blockquote>
-        </div>
-    
-    
+    <div id="quote-section" class="max-w-5xl mx-auto px-4 sm:px-6 mt-12 mb-12 p-6 sm:p-8 rounded-3xl backdrop-blur-xl border border-white/20 
+        bg-white/10 dark:bg-black/10 bordo:bg-bordo-surface/20 navy:bg-navy-surface/20 shadow-lg">
+        <blockquote class="italic text-center">
+            <p id="quote-text" class="text-lg md:text-xl font-medium text-black dark:text-white bordo:text-powder navy:text-ice transition-colors">
+                Загрузка цитаты...
+            </p>
+            <footer id="quote-author" class="mt-4 text-sm uppercase tracking-widest opacity-70 text-black dark:text-white bordo:text-powder/70 navy:text-ice/70"></footer>
+        </blockquote>
+    </div>
 
-    <footer class="border-t border-gray-100 dark:border-zinc-800 bordo:border-powder/10 navy:border-ice/10 mt-auto py-10 md:py-12">
-        <div class="max-w-5xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 md:gap-6 text-center md:text-left">
-            <div class="text-xl font-black tracking-tight">PHYS<span class="text-gray-400 dark:text-zinc-600 bordo:text-powder/50 navy:text-ice/50">WIKI</span>.</div>
-            <p class="text-sm text-gray-400 dark:text-zinc-500 bordo:text-powder/60 navy:text-ice/60 font-medium">© 2026 PhysWiki. Обучение со смыслом.</p>
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 mb-20 grid grid-cols-1 md:grid-cols-3 gap-6" id="scientists-container">
+        <div class="rounded-3xl overflow-hidden glass-card transition-all duration-300">
+            <div class="relative cursor-pointer group" onclick="toggleScientist(this)">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/d/d3/Albert_Einstein_Head.jpg" class="w-full h-72 object-cover grayscale group-hover:grayscale-0 transition-all duration-500">
+                <div class="absolute bottom-4 left-4"><h3 class="text-white font-bold text-2xl drop-shadow-md">А. Эйнштейн</h3></div>
+            </div>
+            <div class="scientist-content p-6 text-white/80 leading-relaxed text-sm bg-black/10">
+                Создатель теории относительности. Перевернул представление о пространстве и времени.
+            </div>
+        </div>
+        <div class="rounded-3xl overflow-hidden glass-card transition-all duration-300">
+            <div class="relative cursor-pointer group" onclick="toggleScientist(this)">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Richard_Feynman_Nobel.jpg" class="w-full h-72 object-cover grayscale group-hover:grayscale-0 transition-all duration-500">
+                <div class="absolute bottom-4 left-4"><h3 class="text-white font-bold text-2xl drop-shadow-md">Р. Фейнман</h3></div>
+            </div>
+            <div class="scientist-content p-6 text-white/80 leading-relaxed text-sm bg-black/10">
+                Один из создателей квантовой электродинамики, мастер объяснения сложных концепций.
+            </div>
+        </div>
+        <div class="rounded-3xl overflow-hidden glass-card transition-all duration-300">
+            <div class="relative cursor-pointer group" onclick="toggleScientist(this)">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Nikola_Tesla.jpg" class="w-full h-72 object-cover grayscale group-hover:grayscale-0 transition-all duration-500">
+                <div class="absolute bottom-4 left-4"><h3 class="text-white font-bold text-2xl drop-shadow-md">Н. Тесла</h3></div>
+            </div>
+            <div class="scientist-content p-6 text-white/80 leading-relaxed text-sm bg-black/10">
+                Гений электротехники, подаривший миру переменный ток.
+            </div>
+        </div>
+    </div>
+
+    <footer class="border-t border-gray-100 dark:border-zinc-800 bordo:border-powder/10 navy:border-ice/10 py-10">
+        <div class="max-w-5xl mx-auto px-6 text-center">
+            <p class="text-sm text-gray-400 font-medium">© 2026 PhysWiki. Обучение со смыслом.</p>
         </div>
     </footer>
 

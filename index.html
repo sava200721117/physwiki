@@ -899,7 +899,33 @@ function updateStatus(status) {
         }
 
         function toggleMobileMenu() { document.getElementById('mobile-menu').classList.toggle('hidden'); }
-        document.addEventListener('DOMContentLoaded', () => { navigate('home'); });
+        // --- ЦИТАТЫ УЧЕНЫХ ---
+        const quotes = [
+            { text: "«Никакое количество экспериментов не докажет, что я прав; но достаточно одного эксперимента, чтобы доказать, что я ошибаюсь».", author: "Альберт Эйнштейн" },
+            { text: "«Природа не знает никакой неточности, и ее не смущают трудности анализа».", author: "Ричард Фейнман" },
+            { text: "«Мы должны помнить, что то, что мы наблюдаем — это не сама природа, а природа, открывающаяся нам в нашем методе исследования».", author: "Вернер Гейзенберг" },
+            { text: "«Тот, кто не шокирован квантовой теорией, не понял ее».", author: "Нильс Бор" },
+            { text: "«То, что мы называем реальностью, состоит из вещей, которые нельзя считать реальными».", author: "Нильс Бор" },
+            { text: "«Красота уравнений важнее, чем их согласие с экспериментом».", author: "Поль Дирак" },
+            { text: "«Если вы думаете, что понимаете квантовую механику, значит, вы её не понимаете».", author: "Ричард Фейнман" },
+            { text: "«Наука не является и никогда не будет являться законченной книгой».", author: "Альберт Эйнштейн" },
+            { text: "«Математика — это язык, на котором написана книга природы».", author: "Галилео Галилей" },
+            { text: "«Всякая истина проходит через три стадии: сначала ее высмеивают, потом ее яростно отрицают, и, наконец, ее принимают как очевидную».", author: "Артур Шопенгауэр" }
+        ];
+
+        function updateQuote() {
+            const randomIndex = Math.floor(Math.random() * quotes.length);
+            const quoteEl = document.getElementById('quote-text');
+            const authorEl = document.getElementById('quote-author');
+            if(quoteEl) quoteEl.innerText = quotes[randomIndex].text;
+            if(authorEl) authorEl.innerText = '— ' + quotes[randomIndex].author;
+        }
+
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', () => { 
+            navigate('home'); 
+            updateQuote(); // Вызываем смену цитаты
+        });
         function toggleScientist(btn) {
         const currentContent = btn.nextElementSibling;
         const isActive = currentContent.classList.contains('active');
